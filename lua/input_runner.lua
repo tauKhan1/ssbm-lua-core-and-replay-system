@@ -2,6 +2,11 @@
 local r = {}
 local inputs = {}
 local num_inputs = 0 
+local x_orig = 0
+local y_orig = 0
+local cx_orig = 0
+local cy_orig = 0
+
 
 function parseCommand(command)
 	if command[1] == "all" then
@@ -82,7 +87,27 @@ end
 
 r.interpretInputFile = interpretInputFile
 
+function toSInt8(val)
+	if val > 127 then
+		val = val - 256
+	end
+	return val
+end
+
+function updateOrigin()
+	
+	x_orig = toSInt8(ReadValue8(0x804a89b2))
+	y_orig = toSInt8(ReadValue8(0x804a89b3))
+	cx_orig = toSInt8(ReadValue8(0x804a89b4))
+	cy_orig = toSInt8(ReadValue8(0x804a89b5))
+	-- SetScreenText(string.format("%s, %s, %s, %s", x_orig, y_orig, cx_orig, cy_orig))
+end
+
+	
+
 function executeInputs(index)
+
+	updateOrigin()
 	if inputs[index] ~= nil then
 		input = inputs[index]
 		buttons = input[1]
@@ -110,11 +135,11 @@ function executeInputs(index)
  		if string.find(buttons, "S") ~= nil then
 			PressButton("Start")		
 		end
- 		SetMainStickX(input[2])
-		SetMainStickY(input[3])
+ 		SetMainStickX(input[2] + x_orig)
+		SetMainStickY(input[3] + y_orig)
 
-		SetCStickX(input[4])
-		SetCStickY(input[5])
+		SetCStickX(input[4] + cx_orig)
+		SetCStickY(input[5] + cy_orig)
 
 		
 	end
